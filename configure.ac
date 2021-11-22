@@ -196,6 +196,9 @@ AG_GST_CHECK_MODULES([GST_ALLOCATORS],
 AG_GST_CHECK_MODULES([GST_VIDEO],
   [gstreamer-video-$GST_API_VERSION], [$GSTPB_REQ], yes)
 
+AG_GST_CHECK_MODULES([GST_PBUTILS],
+  [gstreamer-pbutils-$GST_API_VERSION], [$GSTPB_REQ], yes)
+
 GST_TOOLS_DIR=`$PKG_CONFIG --variable=toolsdir gstreamer-$GST_API_VERSION`
 if test -z $GST_TOOLS_DIR; then
   AC_MSG_ERROR([no tools dir defined in GStreamer pkg-config file; core upgrade needed.])

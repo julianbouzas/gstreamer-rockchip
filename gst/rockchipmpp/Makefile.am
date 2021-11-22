@@ -10,6 +10,8 @@ libgstrockchipmpp_la_SOURCES =			\
 	gstmppjpegdec.c				\
 	gstmpp.c				\
 	gstmppdec.c				\
+	gstmppalphadecodebin.c			\
+	gstmppvpxalphadecodebin.c		\
 	$(NULL)
 
 libgstrockchipmpp_la_CFLAGS =			\
@@ -18,6 +20,7 @@ libgstrockchipmpp_la_CFLAGS =			\
 	$(GST_PLUGINS_BASE_CFLAGS)		\
 	$(GST_ALLOCATORS_CFLAGS)		\
 	$(GST_VIDEO_CFLAGS)			\
+	$(GST_PBUTILS_CFLAGS)			\
 	$(ROCKCHIP_MPP_CFLAGS)			\
 	$(RGA_CFLAGS)				\
 	$(NULL)
@@ -27,6 +30,7 @@ libgstrockchipmpp_la_LIBADD =			\
 	$(GST_BASE_LIBS)			\
 	$(GST_PLUGINS_BASE_LIBS)		\
 	$(GST_VIDEO_LIBS)			\
+	$(GST_PBUTILS_LIBS)			\
 	$(GST_ALLOCATORS_LIBS)			\
 	$(ROCKCHIP_MPP_LIBS)			\
 	$(RGA_LIBS)				\
@@ -48,4 +52,6 @@ noinst_HEADERS =				\
 	gstmppallocator.h			\
 	gstmppvideodec.h			\
 	gstmppdec.h				\
+	gstmppalphadecodebin.h			\
+	gstmppvpxalphadecodebin.h		\
 	$(NULL)
