@@ -37,6 +37,7 @@
 #include "gstmppjpegdec.h"
 #include "gstmppvideodec.h"
 #include "gstmppvpxalphadecodebin.h"
+#include "gstmppjpegdecodebin.h"
 
 GST_DEBUG_CATEGORY_STATIC (mpp_debug);
 #define GST_CAT_DEFAULT mpp_debug
@@ -504,6 +505,7 @@ plugin_init (GstPlugin * plugin)
 
   gst_mpp_video_dec_register (plugin, GST_RANK_PRIMARY + 1);
   gst_mpp_jpeg_dec_register (plugin, GST_RANK_PRIMARY + 1);
+  gst_mpp_jpeg_decode_bin_register (plugin, GST_RANK_PRIMARY + 1);
 
 #ifdef USE_VPXALPHADEC
   gst_mpp_vpx_alpha_decode_bin_register (plugin,
