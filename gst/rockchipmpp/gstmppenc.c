@@ -346,9 +346,7 @@ gst_mpp_enc_apply_properties (GstVideoEncoder * encoder)
 {
   GstMppEnc *self = GST_MPP_ENC (encoder);
   GstVideoInfo *info = &self->info;
-  gint fps_num = GST_VIDEO_INFO_FPS_N (info);
-  gint fps_denorm = GST_VIDEO_INFO_FPS_D (info);
-  gint fps = fps_num / fps_denorm;
+  gint fps = GST_VIDEO_INFO_FPS_N (info) / GST_VIDEO_INFO_FPS_D (info);
 
   if (!self->prop_dirty)
     return TRUE;
@@ -650,10 +648,12 @@ gst_mpp_enc_set_format (GstVideoEncoder * encoder, GstVideoCodecState * state)
   mpp_frame_set_hor_stride (self->mpp_frame, GST_MPP_VIDEO_INFO_HSTRIDE (info));
   mpp_frame_set_ver_stride (self->mpp_frame, GST_MPP_VIDEO_INFO_VSTRIDE (info));
 
-  if (!GST_VIDEO_INFO_FPS_N (info) || GST_VIDEO_INFO_FPS_N (info) > 240) {
+  if (!GST_VIDEO_INFO_FPS_N (info) ||
+      GST_VIDEO_INFO_FPS_N (info) / GST_VIDEO_INFO_FPS_D (info) > 256) {
     GST_WARNING_OBJECT (self, "framerate (%d/%d) is insane!",
         GST_VIDEO_INFO_FPS_N (info), GST_VIDEO_INFO_FPS_D (info));
     GST_VIDEO_INFO_FPS_N (info) = DEFAULT_FPS;
+    GST_VIDEO_INFO_FPS_D (info) = 1;
   }
 
   mpp_enc_cfg_set_s32 (self->mpp_cfg, "prep:format", format);
