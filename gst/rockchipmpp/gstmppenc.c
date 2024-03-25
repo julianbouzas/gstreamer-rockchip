@@ -111,6 +111,7 @@ static const MppFrameFormat gst_mpp_enc_formats[] = {
   MPP_FMT_ABGR8888,
   MPP_FMT_RGBA8888,
   MPP_FMT_BGRA8888,
+  MPP_FMT_RGB888
 };
 
 static gboolean
