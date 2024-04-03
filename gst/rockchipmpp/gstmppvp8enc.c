@@ -71,13 +71,13 @@ GST_STATIC_PAD_TEMPLATE ("src",
     GST_STATIC_CAPS ("video/x-vp8, " GST_MPP_VP8_ENC_SIZE_CAPS));
 
 static GstStaticPadTemplate gst_mpp_vp8_enc_sink_template =
-GST_STATIC_PAD_TEMPLATE ("sink",
+    GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
     GST_STATIC_CAPS ("video/x-raw,"
         "format = (string) { " MPP_ENC_FORMATS " }, "
         GST_MPP_VP8_ENC_SIZE_CAPS ";"
-	"video/x-raw(memory:DMABuf),"
+        "video/x-raw(memory:DMABuf),"
         "format = (string) { " MPP_ENC_FORMATS " }, "
         GST_MPP_VP8_ENC_SIZE_CAPS));
 

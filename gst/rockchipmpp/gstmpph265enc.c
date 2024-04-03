@@ -81,7 +81,7 @@ static GstStaticPadTemplate gst_mpp_h265_enc_sink_template =
     GST_STATIC_CAPS ("video/x-raw,"
         "format = (string) { " MPP_ENC_FORMATS " }, "
         GST_MPP_H265_ENC_SIZE_CAPS ";"
-	"video/x-raw(memory:DMABuf),"
+        "video/x-raw(memory:DMABuf),"
         "format = (string) { " MPP_ENC_FORMATS " }, "
         GST_MPP_H265_ENC_SIZE_CAPS));
 
