@@ -53,6 +53,9 @@ struct _GstMppH264Enc
   guint qp_init;
   guint qp_min;
   guint qp_max;
+  guint qp_min_i;
+  guint qp_max_i;
+  gint qp_ip;
   gint qp_max_step;
 };
 
@@ -64,6 +67,9 @@ G_DEFINE_TYPE (GstMppH264Enc, gst_mpp_h264_enc, GST_TYPE_MPP_ENC);
 #define DEFAULT_PROP_QP_INIT 26
 #define DEFAULT_PROP_QP_MIN 0   /* Auto */
 #define DEFAULT_PROP_QP_MAX 0   /* Auto */
+#define DEFAULT_PROP_QP_MIN_I 0 /* Auto */
+#define DEFAULT_PROP_QP_MAX_I 0 /* Auto */
+#define DEFAULT_PROP_QP_IP -1   /* Auto */
 #define DEFAULT_PROP_QP_MAX_STEP -1     /* Auto */
 
 enum
@@ -74,6 +80,9 @@ enum
   PROP_QP_INIT,
   PROP_QP_MIN,
   PROP_QP_MAX,
+  PROP_QP_MIN_I,
+  PROP_QP_MAX_I,
+  PROP_QP_IP,
   PROP_QP_MAX_STEP,
   PROP_LAST,
 };
@@ -204,6 +213,30 @@ gst_mpp_h264_enc_set_property (GObject * object,
       self->qp_max = qp_max;
       break;
     }
+    case PROP_QP_MIN_I:{
+      guint qp_min_i = g_value_get_uint (value);
+      if (self->qp_min_i == qp_min_i)
+        return;
+
+      self->qp_min_i = qp_min_i;
+      break;
+    }
+    case PROP_QP_MAX_I:{
+      guint qp_max_i = g_value_get_uint (value);
+      if (self->qp_max_i == qp_max_i)
+        return;
+
+      self->qp_max_i = qp_max_i;
+      break;
+    }
+    case PROP_QP_IP:{
+      gint qp_ip = g_value_get_int (value);
+      if (self->qp_ip == qp_ip)
+        return;
+
+      self->qp_ip = qp_ip;
+      break;
+    }
     case PROP_QP_MAX_STEP:{
       gint qp_max_step = g_value_get_int (value);
       if (self->qp_max_step == qp_max_step)
@@ -242,6 +275,15 @@ gst_mpp_h264_enc_get_property (GObject * object,
       break;
     case PROP_QP_MAX:
       g_value_set_uint (value, self->qp_max);
+      break;
+    case PROP_QP_MIN_I:
+      g_value_set_uint (value, self->qp_min_i);
+      break;
+    case PROP_QP_MAX_I:
+      g_value_set_uint (value, self->qp_max_i);
+      break;
+    case PROP_QP_IP:
+      g_value_set_int (value, self->qp_ip);
       break;
     case PROP_QP_MAX_STEP:
       g_value_set_int (value, self->qp_max_step);
@@ -292,22 +334,24 @@ gst_mpp_h264_enc_apply_properties (GstVideoEncoder * encoder)
   if (mppenc->rc_mode == MPP_ENC_RC_MODE_FIXQP) {
     mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:qp_max", self->qp_init);
     mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:qp_min", self->qp_init);
+    mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:qp_min_i", self->qp_init);
+    mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:qp_max_i", self->qp_init);
+    mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:qp_ip", 0);
     mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:qp_step", 0);
   } else if (mppenc->rc_mode == MPP_ENC_RC_MODE_CBR) {
-    /* NOTE: These settings have been tuned for better quality */
-    mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:qp_max",
-        self->qp_max ? self->qp_max : 28);
+    /* MPP_ENC_RC_MODE_CBR/MPP_ENC_RC_MODE_VBR/MPP_ENC_RC_MODE_AVBR */
     mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:qp_min",
-        self->qp_min ? self->qp_min : 4);
-    mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:qp_step",
-        self->qp_max_step >= 0 ? self->qp_max_step : 8);
-  } else if (mppenc->rc_mode == MPP_ENC_RC_MODE_VBR) {
+        self->qp_min ? self->qp_min : 10);
     mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:qp_max",
-        self->qp_max ? self->qp_max : 40);
-    mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:qp_min",
-        self->qp_min ? self->qp_min : 12);
+        self->qp_max ? self->qp_max : 51);
+    mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:qp_min_i",
+        self->qp_min_i ? self->qp_min_i : 10);
+    mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:qp_max_i",
+        self->qp_max_i ? self->qp_max_i : 51);
+    mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:qp_ip",
+        self->qp_ip >= 0 ? self->qp_ip : 2);
     mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:qp_step",
-        self->qp_max_step >= 0 ? self->qp_max_step : 8);
+        self->qp_max_step >=0 ? self->qp_max_step : 8);
   }
 
   mpp_enc_cfg_set_s32 (mppenc->mpp_cfg, "h264:profile", self->profile);
@@ -361,6 +405,9 @@ gst_mpp_h264_enc_init (GstMppH264Enc * self)
   self->qp_init = DEFAULT_PROP_QP_INIT;
   self->qp_min = DEFAULT_PROP_QP_MIN;
   self->qp_max = DEFAULT_PROP_QP_MAX;
+  self->qp_min_i = DEFAULT_PROP_QP_MIN_I;
+  self->qp_max_i = DEFAULT_PROP_QP_MAX_I;
+  self->qp_ip = DEFAULT_PROP_QP_IP;
   self->qp_max_step = DEFAULT_PROP_QP_MAX_STEP;
 }
 
@@ -409,6 +456,21 @@ gst_mpp_h264_enc_class_init (GstMppH264EncClass * klass)
   g_object_class_install_property (gobject_class, PROP_QP_MAX,
       g_param_spec_uint ("qp-max", "Max QP",
           "Max QP (0 = default)", 0, 51, DEFAULT_PROP_QP_MAX,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_QP_MIN_I,
+      g_param_spec_uint ("qp-min-i", "Min Intra QP",
+          "Min Intra QP (0 = default)", 0, 51, DEFAULT_PROP_QP_MIN_I,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_QP_MAX_I,
+      g_param_spec_uint ("qp-max-i", "Max Intra QP",
+          "Max Intra QP (0 = default)", 0, 51, DEFAULT_PROP_QP_MAX_I,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (gobject_class, PROP_QP_IP,
+      g_param_spec_int ("qp-delta-ip", "Delta QP between I and P",
+          "Delta QP between I and P (-1 = default)", -1, 8, DEFAULT_PROP_QP_IP,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_QP_MAX_STEP,
